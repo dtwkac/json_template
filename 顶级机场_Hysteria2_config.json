@@ -1,0 +1,249 @@
+{
+  "log": {
+    "level": "warn",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "remote",
+        "address": "8.8.8.8",
+        "strategy": "prefer_ipv4",
+        "detour": "proxy"
+      },
+      {
+        "tag": "local",
+        "address": "223.5.5.5",
+        "strategy": "prefer_ipv4",
+        "detour": "direct"
+      },
+      {
+        "tag": "block",
+        "address": "rcode://success"
+      },
+      {
+        "tag": "local_local",
+        "address": "223.5.5.5",
+        "detour": "direct"
+      }
+    ],
+    "rules": [
+      {
+        "server": "remote",
+        "clash_mode": "Global"
+      },
+      {
+        "server": "local_local",
+        "clash_mode": "Direct"
+      },
+      {
+        "server": "local",
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn"
+        ]
+      },
+      {
+        "server": "block",
+        "rule_set": [
+          "geosite-category-ads-all"
+        ]
+      }
+    ],
+    "final": "remote"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks",
+      "listen": "127.0.0.1",
+      "listen_port": 10808,
+      "sniff": true,
+      "sniff_override_destination": true
+    },
+    {
+      "type": "http",
+      "tag": "http",
+      "listen": "127.0.0.1",
+      "listen_port": 10809,
+      "sniff": true,
+      "sniff_override_destination": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "hysteria2",
+      "tag": "proxy",
+      "server": "163.123.192.167",
+      "server_port": 50000,
+      "up_mbps": 100,
+      "down_mbps": 100,
+      "password": "eb2e6e9d-adc8-4d77-acc4-ef0264880f0d",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.microsoft.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    },
+    {
+      "type": "dns",
+      "tag": "dns_out"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "outbound": "proxy",
+        "clash_mode": "Global"
+      },
+      {
+        "outbound": "direct",
+        "clash_mode": "Direct"
+      },
+      {
+        "outbound": "dns_out",
+        "protocol": [
+          "dns"
+        ]
+      },
+      {
+        "outbound": "proxy",
+        "domain": [
+          "googleapis.cn",
+          "gstatic.com"
+        ],
+        "domain_suffix": [
+          ".googleapis.cn",
+          ".gstatic.com"
+        ]
+      },
+      {
+        "outbound": "block",
+        "network": [
+          "udp"
+        ],
+        "port": [
+          443
+        ]
+      },
+      {
+        "outbound": "block",
+        "rule_set": [
+          "geosite-category-ads-all"
+        ]
+      },
+      {
+        "outbound": "direct",
+        "ip_is_private": true
+      },
+      {
+        "outbound": "direct",
+        "rule_set": [
+          "geosite-private"
+        ]
+      },
+      {
+        "outbound": "direct",
+        "ip_cidr": [
+          "223.5.5.5/32",
+          "223.6.6.6/32",
+          "2400:3200::1/128",
+          "2400:3200:baba::1/128",
+          "119.29.29.29/32",
+          "1.12.12.12/32",
+          "120.53.53.53/32",
+          "2402:4e00::/128",
+          "2402:4e00:1::/128",
+          "180.76.76.76/32",
+          "2400:da00::6666/128",
+          "114.114.114.114/32",
+          "114.114.115.115/32",
+          "180.184.1.1/32",
+          "180.184.2.2/32",
+          "101.226.4.6/32",
+          "218.30.118.6/32",
+          "123.125.81.6/32",
+          "140.207.198.6/32"
+        ],
+        "rule_set": [
+          "geoip-cn"
+        ]
+      },
+      {
+        "outbound": "direct",
+        "domain": [
+          "dns.alidns.com",
+          "doh.pub",
+          "dot.pub",
+          "doh.360.cn",
+          "dot.360.cn"
+        ],
+        "domain_suffix": [
+          ".dns.alidns.com",
+          ".doh.pub",
+          ".dot.pub",
+          ".doh.360.cn",
+          ".dot.360.cn"
+        ],
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn"
+        ]
+      },
+      {
+        "outbound": "proxy",
+        "port_range": [
+          "0:65535"
+        ]
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "geosite-category-ads-all",
+        "type": "local",
+        "format": "binary",
+        "path": "/home/ubuntu/v2rayN-linux-64/bin/srss/geosite-category-ads-all.srs"
+      },
+      {
+        "tag": "geosite-private",
+        "type": "local",
+        "format": "binary",
+        "path": "/home/ubuntu/v2rayN-linux-64/bin/srss/geosite-private.srs"
+      },
+      {
+        "tag": "geosite-cn",
+        "type": "local",
+        "format": "binary",
+        "path": "/home/ubuntu/v2rayN-linux-64/bin/srss/geosite-cn.srs"
+      },
+      {
+        "tag": "geosite-geolocation-cn",
+        "type": "local",
+        "format": "binary",
+        "path": "/home/ubuntu/v2rayN-linux-64/bin/srss/geosite-geolocation-cn.srs"
+      },
+      {
+        "tag": "geoip-cn",
+        "type": "local",
+        "format": "binary",
+        "path": "/home/ubuntu/v2rayN-linux-64/bin/srss/geoip-cn.srs"
+      }
+    ]
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true
+    },
+    "clash_api": {
+      "external_controller": "127.0.0.1:10814"
+    }
+  }
+}
